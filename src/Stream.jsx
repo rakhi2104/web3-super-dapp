@@ -23,6 +23,8 @@ const StreamComp = ({
   isAddress,
   streamInProgress,
   closeDAIStream,
+  account,
+  fetchingUserDetailsInProgress,
 }) => {
   const isValid = (() => {
     if (parseFloat(streamRate) > 0) return true;
@@ -33,15 +35,25 @@ const StreamComp = ({
 
   useEffect(() => {
     if (streamRecipient) {
-      setInvalidAddress(!isAddress(streamRecipient));
+      if (!isAddress(streamRecipient)) {
+        setInvalidAddress("Invalid recipient address");
+      } else if (streamRecipient === account) {
+        setInvalidAddress(
+          "Recipient address cannot be same as current address"
+        );
+      } else {
+        setInvalidAddress(null);
+      }
     }
-  }, [streamRecipient, isAddress]);
+  }, [streamRecipient, isAddress, account]);
+
+  const inProgress = fetchingUserDetailsInProgress || streamInProgress;
 
   return (
     <CardWrapper flex={1}>
       <Row strict>
         <H1>Stream DAI</H1>
-        <Loading isLoading={streamInProgress} />
+        <Loading isLoading={inProgress} />
       </Row>
       <Divider />
       <CardContent>
@@ -52,20 +64,18 @@ const StreamComp = ({
               value={streamRecipient}
               name="recipient-address"
               type="text"
-              disabled={streamInProgress}
+              disabled={inProgress}
               placeholder="Enter recipient's wallet address"
               onChange={(e) => setStreamReceipientAddress(e.target.value)}
             />
-            {invalidAddress && (
-              <ErrorMessage>Invalid recipient address</ErrorMessage>
-            )}
+            {invalidAddress && <ErrorMessage>{invalidAddress}</ErrorMessage>}
           </InputWrapper>
           <InputWrapper>
             <Label htmlFor="flow-rate">Rate</Label>
             <span>
               <Input
                 value={streamRate}
-                disabled={streamInProgress}
+                disabled={inProgress}
                 name="flow-rate"
                 placeholder="Enter rate of flow"
                 type="number"
@@ -87,7 +97,7 @@ const StreamComp = ({
                 if (isAddress(streamRecipient)) {
                   triggerDAIFlow();
                 } else {
-                  setInvalidAddress(true);
+                  setInvalidAddress("Invalid recipient address");
                 }
               }
             }}

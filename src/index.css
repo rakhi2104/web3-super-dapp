@@ -131,6 +131,7 @@ table {
   --primary-color--hover: #cfe1f8;
   --disabled: #ebebeb;
   --error-color: #aa2728;
+  --secondary-color: #e37000;
 }
 
 body {

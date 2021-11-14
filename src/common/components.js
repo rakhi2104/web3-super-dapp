@@ -73,6 +73,7 @@ const Currency = styled.h3`
     font-size: 24px;
     margin-right: 8px;
     text-align: center;
+    color: var(--secondary-color);
   }
 `;
 
@@ -176,7 +177,15 @@ const ErrorMessage = styled.p`
   padding-top: 6px;
 `;
 
+const NoteMessage = styled.p`
+  color: var(--primary-color);
+  font-size: 14px;
+  padding-top: 6px;
+  text-align: center;
+`;
+
 export {
+  NoteMessage,
   AccountImg,
   Input,
   Label,

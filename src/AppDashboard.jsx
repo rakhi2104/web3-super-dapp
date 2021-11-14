@@ -16,20 +16,26 @@ import {
   Currency,
   Divider,
   H1,
+  NoteMessage,
   Row,
 } from "./common/components";
 import { injected } from "./common/connector";
-import { INITIAL_BALANCE_STATE, METAMASK_ICON } from "./common/constants";
+import { INITIAL_BALANCE_STATE } from "./common/constants";
 import { formatAddress } from "./common/utils";
+import Logo from "./MetaMask_Fox.png";
 import StreamComp from "./Stream";
 
 let sf, dai, daix;
 
+const { REACT_APP_GAS_API_TOKEN } = process.env;
+
 function AppDashboard() {
   const [balance, setBalance] = useState(INITIAL_BALANCE_STATE);
+  const [estimatedGasPrice, setEstimatedGasPrice] = useState(null);
   const [fetchingBalance, setFetchingBalance] = useState(true);
   const data = useWeb3React();
   const { active, account, activate, deactivate, library } = data;
+
   const fetchBalances = useCallback(async () => {
     setFetchingBalance(true);
     const daiBalance = wad4human(await dai.balanceOf(account));
@@ -45,21 +51,28 @@ function AppDashboard() {
   const [streamRate, setStreamRate] = useState(0);
 
   const [streamInProgress, setStreamInProgress] = useState(false);
+  const [fetchingUserDetailsInProgress, setFetchingUserDetailsInProgress] =
+    useState(true);
 
   const getExistingStreamDetails = useCallback(async () => {
-    const userDetails = await sf
-      .user({ address: account, token: daix.address })
-      .details();
-
-    if (userDetails) {
-      const outflows = userDetails.cfa?.flows?.outFlows;
-      if (outflows?.length > 0) {
-        const { flowRate, receiver } = outflows?.[0];
-        setStreamInProgress(true);
-        setStreamRate(flowRate);
-        setStreamReceipientAddress(receiver);
+    setFetchingUserDetailsInProgress(true);
+    try {
+      const userDetails = await sf
+        .user({ address: account, token: daix.address })
+        .details();
+      if (userDetails) {
+        const outflows = userDetails.cfa?.flows?.outFlows;
+        if (outflows?.length > 0) {
+          const { flowRate, receiver } = outflows?.[0];
+          setStreamInProgress(true);
+          setStreamRate(flowRate);
+          setStreamReceipientAddress(receiver);
+        }
       }
+    } catch (e) {
+      toast.error(e);
     }
+    setFetchingUserDetailsInProgress(false);
   }, [account]);
 
   const Init = useCallback(async () => {
@@ -116,21 +129,73 @@ function AppDashboard() {
 
   const [loading, setLoading] = useState(false);
 
-  const approveDAIMint = async () => {
+  async function estimateGAS() {
+    if (REACT_APP_GAS_API_TOKEN) {
+      try {
+        await fetch(
+          "https://ethgasstation.info/api/ethgasAPI.json?api-key" +
+            REACT_APP_GAS_API_TOKEN
+        )
+          .then((res) => res.json())
+          .then((json) => {
+            const { fast, block_time } = json;
+            if (library?.utils) {
+              const price = library?.utils?.fromWei("" + (fast / 10) * 10 ** 9);
+              setEstimatedGasPrice({
+                price,
+                time: parseFloat(block_time).toFixed(2),
+              });
+            }
+          });
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      console.log("No token provided");
+    }
+  }
+
+  const resetGAS = () => {
+    setEstimatedGasPrice(0);
+  };
+
+  // const approveDAIMint = async () => {
+  //   setLoading(true);
+  //   try {
+  //     estimateGAS();
+  //     const d = await dai.mint(
+  //       account,
+  //       library.utils.toWei(depositAmount, "ether")
+  //     );
+  //     if (d?.tx) {
+  //       toast.success(`Successfully approved ${depositAmount} DAI`);
+  //     }
+  //     fetchBalances();
+  //   } catch (e) {
+  //     const { message } = e;
+  //     toast.error(message);
+  //   } finally {
+  //     resetGAS();
+  //     setLoading(false);
+  //   }
+  // };
+
+  const approveDAI = async () => {
     setLoading(true);
     try {
-      const d = await dai.mint(
-        account,
-        library.utils.toWei(depositAmount, "ether")
-      );
-      if (d?.tx) {
-        toast.success(`Successfully approved ${depositAmount} DAI`);
+      estimateGAS();
+      const d1 = await dai.approve(daix.address, "1" + "0".repeat(40), {
+        from: account,
+      });
+      if (d1?.tx) {
+        toast.success(`Successfully signed`);
       }
       fetchBalances();
-    } catch (e) {
-      const { message } = e;
+    } catch (e1) {
+      const { message } = e1;
       toast.error(message);
     } finally {
+      resetGAS();
       setLoading(false);
     }
   };
@@ -138,26 +203,22 @@ function AppDashboard() {
   const depositDAI = async () => {
     setLoading(true);
     try {
-      const d1 = await dai.approve(daix.address, "1" + "0".repeat(40), {
-        from: account,
-      });
-      if (d1?.tx) {
-        toast.success(`Successfully signed`);
-        const d2 = await daix.upgrade(
-          library.utils.toWei(depositAmount, "ether"),
-          {
-            from: account,
-          }
-        );
-        if (d2?.tx) {
-          toast.success(`Successfully minted ${depositAmount} DAIx`);
+      estimateGAS();
+      const d2 = await daix.upgrade(
+        library.utils.toWei(depositAmount, "ether"),
+        {
+          from: account,
         }
+      );
+      if (d2?.tx) {
+        toast.success(`Successfully minted ${depositAmount} DAIx`);
       }
       fetchBalances();
     } catch (e1) {
       const { message } = e1;
       toast.error(message);
     } finally {
+      resetGAS();
       setLoading(false);
     }
   };
@@ -169,6 +230,7 @@ function AppDashboard() {
       token: daix.address,
     });
     try {
+      estimateGAS();
       const a = await sender.flow({
         recipient: "" + streamRecipient,
         flowRate: "" + streamRate,
@@ -181,8 +243,11 @@ function AppDashboard() {
         );
       }
     } catch (e) {
+      resetGAS();
       setStreamInProgress(false);
       toast.error(e?.message || e);
+    } finally {
+      resetGAS();
     }
   };
 
@@ -192,6 +257,7 @@ function AppDashboard() {
       token: daix.address,
     });
     try {
+      estimateGAS();
       const a = await sender.flow({
         recipient: "" + streamRecipient,
         flowRate: "0",
@@ -207,6 +273,7 @@ function AppDashboard() {
     } catch (e) {
       toast.error(e?.message || e);
     }
+    resetGAS();
   };
 
   return (
@@ -220,7 +287,7 @@ function AppDashboard() {
               <Col>
                 {active && (
                   <>
-                    <AccountImg src={METAMASK_ICON} alt="account logo" />
+                    <AccountImg src={Logo} alt="account logo" />
                     <Currency title={account}>
                       {formatAddress(account)}
                     </Currency>
@@ -266,10 +333,11 @@ function AppDashboard() {
         <Row>
           <ApproveAndDepositComp
             depositDAI={depositDAI}
-            approveDAIMint={approveDAIMint}
+            approveDAI={approveDAI}
             setDepositAmount={setDepositAmount}
             depositAmount={depositAmount}
             isLoading={loading}
+            balance={balance}
           />
           <StreamComp
             setStreamRate={setStreamRate}
@@ -278,12 +346,20 @@ function AppDashboard() {
             streamRate={streamRate}
             streamRecipient={streamRecipient}
             streamInProgress={streamInProgress}
+            fetchingUserDetailsInProgress={fetchingUserDetailsInProgress}
             isAddress={library?.utils?.isAddress}
             closeDAIStream={closeDAIStream}
+            account={account}
           />
         </Row>
       )}
-      <Toaster position="top-right" gutter={8} />
+      {library && Boolean(estimatedGasPrice) && (
+        <NoteMessage>
+          Estimated gas price of {estimatedGasPrice?.price} ETH and{" "}
+          {estimatedGasPrice.time} seconds for approval
+        </NoteMessage>
+      )}
+      <Toaster position="bottom-center" gutter={8} />
     </>
   );
 }

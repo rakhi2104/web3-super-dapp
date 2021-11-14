@@ -1,9 +1,11 @@
+import { useState } from "react";
 import {
   Button,
   CardContent,
   CardWrapper,
   Col,
   Divider,
+  ErrorMessage,
   H1,
   Input,
   InputWrapper,
@@ -14,15 +16,32 @@ import Loading from "./Loading";
 
 const ApproveAndDepositComp = ({
   setDepositAmount,
-  approveDAIMint,
+  approveDAI,
   depositDAI,
   isLoading,
   depositAmount,
+  balance,
 }) => {
-  const isValid = (() => {
+  const [errorMessage, setErrorMessage] = useState(null);
+  const isValidNumber = (() => {
     if (parseFloat(depositAmount) > 0) return true;
     return false;
   })();
+
+  const validAmount = () => {
+    console.log({
+      d: parseFloat(depositAmount),
+      b: parseFloat(balance?.daixBalance),
+    });
+    if (parseFloat(depositAmount) > parseFloat(balance?.daixBalance)) {
+      setErrorMessage("Insufficient funds");
+      return false;
+    } else {
+      setErrorMessage(null);
+    }
+    return true;
+  };
+
   return (
     <CardWrapper flex={1}>
       <Row strict>
@@ -42,19 +61,28 @@ const ApproveAndDepositComp = ({
               min={1}
               disabled={isLoading}
             />
+            {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
           </InputWrapper>
           <Row>
             <Button
               type="button"
-              onClick={approveDAIMint}
-              disabled={!isValid || isLoading}
+              onClick={() => {
+                if (validAmount()) {
+                  approveDAI();
+                }
+              }}
+              disabled={!isValidNumber || isLoading}
             >
               Approve
             </Button>
             <Button
               type="button"
-              onClick={depositDAI}
-              disabled={!isValid || isLoading}
+              onClick={() => {
+                if (validAmount()) {
+                  depositDAI();
+                }
+              }}
+              disabled={!isValidNumber || isLoading}
             >
               Deposit
             </Button>
