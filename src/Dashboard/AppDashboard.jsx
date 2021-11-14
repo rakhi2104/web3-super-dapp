@@ -154,7 +154,7 @@ function AppDashboard() {
           .then((json) => {
             const { fast, block_time } = json;
             if (library?.utils) {
-              const price = library?.utils?.fromWei("" + (fast / 10) * 10 ** 9);
+              const price = fast / 10;
               setEstimatedGasPrice({
                 price,
                 time: parseFloat(block_time).toFixed(2),
@@ -309,7 +309,9 @@ function AppDashboard() {
                     <Currency title={account}>
                       {formatAddress(account)}
                     </Currency>
-                    <Chip>{CHAIN_ID[chainId] || ""} Network</Chip>
+                    <Chip>
+                      <strong>{CHAIN_ID[chainId] || ""}</strong> Network
+                    </Chip>
                   </>
                 )}
                 <div>
@@ -373,7 +375,7 @@ function AppDashboard() {
       )}
       {library && Boolean(estimatedGasPrice) && (
         <NoteMessage>
-          Estimated gas price of {estimatedGasPrice?.price} ETH and{" "}
+          Estimated gas price of {estimatedGasPrice?.price} gwei and estimated{" "}
           {estimatedGasPrice.time} seconds for approval
         </NoteMessage>
       )}

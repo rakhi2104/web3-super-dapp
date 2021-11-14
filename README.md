@@ -1,6 +1,6 @@
 # Web3 Super DApp
 
-This project is an exploration of the [Superfluid.finance](https://superfluid.finance) SDK Web3.
+This project is an exploration of the [Superfluid.finance](https://superfluid.finance) SDK with Web3.
 
 :fire: :fire: :fire:
 Try the app live here: [web3-super-dapp.vercel.app](https://web3-super-dapp.vercel.app/)
@@ -17,7 +17,7 @@ Try the app live here: [web3-super-dapp.vercel.app](https://web3-super-dapp.verc
 ## Running the App
 
 - This app has been bootstrapped from the Create React App script.
-- To install necessary dependencies, run `npm install` in the root directory.
+- To install necessary dependencies, run `npm install` in the root directory of the project.
 - Optional:
   - To get gas price and time estimate, the ETHGastation API requires us to provide an API Key which can be obtained for free from [data.defipulse.com](https://data.defipulse.com). For further information visit [docs.ethgasstation.info](https://docs.ethgasstation.info/).
   - Once you obtain the API, create a `.env` file similar to `.env.example` and replace `xxxxxxxxxxxx` with your API Key.
