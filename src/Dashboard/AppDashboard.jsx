@@ -28,6 +28,7 @@ import {
 import { formatAddress } from "../common/utils";
 import Logo from "../MetaMask_Fox.png";
 import StreamComp from "../Stream/Stream";
+import WelcomeScreen from "../WelcomeScreen/WelcomeScreen";
 
 let sf, dai, daix;
 
@@ -57,7 +58,7 @@ function AppDashboard() {
     setFetchingBalance(false);
   }, [account]);
 
-  const repeatFetchBalance = useCallback(() => {
+  const pollBalance = useCallback(() => {
     const id = setInterval(fetchBalances, REPEAT_FETCH_BALANCE_INTERVAL);
     setRepeatFetchId(id);
   }, [fetchBalances]);
@@ -75,7 +76,7 @@ function AppDashboard() {
           setStreamInProgress(true);
           setStreamRate(flowRate);
           setStreamReceipientAddress(receiver);
-          repeatFetchBalance();
+          pollBalance();
         } else {
           setStreamInProgress(false);
           clearInterval(repeatFetchId);
@@ -85,7 +86,7 @@ function AppDashboard() {
       toast.error(e);
     }
     setFetchingUserDetails(false);
-  }, [account, repeatFetchBalance, repeatFetchId]);
+  }, [account, pollBalance, repeatFetchId]);
 
   useEffect(() => {
     if (account !== "" && active) {
@@ -250,7 +251,7 @@ function AppDashboard() {
         flowRate: "" + streamRate,
       });
       if (a?.tx) {
-        repeatFetchBalance();
+        pollBalance();
         toast.success(
           `Successfully started streaming ${streamRate} DAIx/month to ${formatAddress(
             streamRecipient
@@ -294,6 +295,10 @@ function AppDashboard() {
     resetGAS();
   };
 
+  if (!active) {
+    return <WelcomeScreen connect={connect} />;
+  }
+
   return (
     <>
       <Row>
@@ -303,29 +308,14 @@ function AppDashboard() {
             <Divider />
             <CardContent centered>
               <Col>
-                {active && (
-                  <>
-                    <AccountImg src={Logo} alt="account logo" />
-                    <Currency title={account}>
-                      {formatAddress(account)}
-                    </Currency>
-                    <Chip>
-                      <strong>{CHAIN_ID[chainId] || ""}</strong> Network
-                    </Chip>
-                  </>
-                )}
+                <AccountImg src={Logo} alt="account logo" />
+                <Currency title={account}>{formatAddress(account)}</Currency>
+                <Chip>
+                  <strong>{CHAIN_ID[chainId] || ""}</strong> Network
+                </Chip>
                 <div>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (active) {
-                        disconnect();
-                      } else {
-                        connect();
-                      }
-                    }}
-                  >
-                    {active ? "Disconnect" : "Connect"} Wallet
+                  <Button type="button" onClick={disconnect}>
+                    Disconnect Wallet
                   </Button>
                 </div>
               </Col>

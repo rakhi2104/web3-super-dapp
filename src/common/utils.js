@@ -7,6 +7,6 @@ const formatAddress = (address) => {
   );
 };
 
-const formatBalance = (val) => parseFloat(val).toFixed(2);
+const formatBalance = (val) => parseFloat(val).toFixed(4);
 
 export { formatAddress, formatBalance };

@@ -60,3 +60,5 @@ export const INITIAL_BALANCE_STATE = { daiBalance: "0", daixBalance: "0" };
 export const TOASTS_LIMIT = 3;
 
 export const REPEAT_FETCH_BALANCE_INTERVAL = 5000;
+
+export const VALID_CHAIN_ID = [3, 4, 5, 42, 137];

@@ -185,7 +185,41 @@ const NoteMessage = styled.p`
   text-align: center;
 `;
 
+const List = styled.ul`
+  padding: 12px 4px;
+  padding-left: 24px;
+  & > li {
+    line-height: 1.4;
+  }
+  & > li > ul > li {
+    list-style-type: square;
+    margin-left: 36px;
+  }
+`;
+
+const Link = styled.a`
+  text-decoration: none;
+  color: var(--primary-color);
+  padding: 2px;
+  border-radius: 2px;
+  font-size: 15px;
+  transition: all 0.1s ease-in-out;
+  &:hover {
+    background-color: var(--primary-color--hover);
+  }
+  &::after {
+    content: "🔗";
+    width: 10px;
+    height: 10px;
+    position: relative;
+    padding-left: 4px;
+    font-size: 12px;
+  }
+`;
+
 export {
+  Link,
+  List,
   AccountImg,
   AppWrapper,
   Button,

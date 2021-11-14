@@ -103,8 +103,7 @@ section {
 body {
   line-height: 1;
 }
-ol,
-ul {
+ol {
   list-style: none;
 }
 blockquote,
@@ -148,4 +147,10 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.highlight {
+  color: var(--secondary-color);
+  font-weight: 400;
+  font-size: 36px;
 }
