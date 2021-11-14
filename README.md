@@ -1,70 +1,37 @@
-# Getting Started with Create React App
+# Web3 Super DApp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is an exploration of the [Superfluid.finance](https://superfluid.finance) SDK Web3.
 
-## Available Scripts
+:fire: :fire: :fire:
+Try the app live here: [web3-super-dapp.vercel.app](https://web3-super-dapp.vercel.app/)
 
-In the project directory, you can run:
+## Technologies Used
 
-### `npm start`
+- React JS
+- web3-react
+- Styled Components
+- Superfluid Finance JS SDK
+- Web3
+- ETHGastation (for gas price estimation)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Running the App
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- This app has been bootstrapped from the Create React App script.
+- To install necessary dependencies, run `npm install` in the root directory.
+- Optional:
+  - To get gas price and time estimate, the ETHGastation API requires us to provide an API Key which can be obtained for free from [data.defipulse.com](https://data.defipulse.com). For further information visit [docs.ethgasstation.info](https://docs.ethgasstation.info/).
+  - Once you obtain the API, create a `.env` file similar to `.env.example` and replace `xxxxxxxxxxxx` with your API Key.
+- To run the app, run `npm start` in the root directory of the project and you should see the app runing on port 3000 in few seconds and you can access it at [http://localhost:3000](http://localhost:3000).
 
-### `npm test`
+## About the App
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- This project assumes you are already familiar using [Metamask](https://metamask.io/) and/or similar Web3 wallets.
+- This app is tested to work with Metamask wallet on the Goerli Test Network.
+- There is a :pinching_hand: amount of ETH involved in transactions in this app. To get yourself some Test ETH, navigate to [app.superfluid.finance](https://app.superfluid.finance/) and connect your wallet for some Test ETH and fake DAI (fDAI) tokens.
+- From our app, you can view your DAI and DAIx token balances connected with the wallet.
+- You can deposit/upgrade your fDAI tokens to DAIx (Super DAI) tokens using the "Approve & Deposit DAI" section.
+- You can also create a stream of DAIx to any recipient address on the same Goerli Test Network from the "Stream DAI" section. Read more about this on the [Superfluid](https://www.superfluid.finance/home) site.
 
-### `npm run build`
+## TODO
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- This app currently uses simple wallets based on the existing Ethereum extensions. To provide support for other wallets as well, a good choice is to include the [Blocknative Onboard SDK](https://docs.blocknative.com/onboard#).

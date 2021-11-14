@@ -21,6 +21,7 @@ import {
 } from "../common/components";
 import { injected } from "../common/connector";
 import {
+  CHAIN_ID,
   INITIAL_BALANCE_STATE,
   REPEAT_FETCH_BALANCE_INTERVAL,
 } from "../common/constants";
@@ -45,10 +46,9 @@ function AppDashboard() {
   const [streamRecipient, setStreamReceipientAddress] = useState("");
 
   const data = useWeb3React();
-  const { active, account, activate, deactivate, library } = data;
+  const { active, account, activate, deactivate, library, chainId } = data;
 
   const fetchBalances = useCallback(async () => {
-    console.log("Fetching balance");
     setFetchingBalance(true);
     const daiBalance = wad4human(await dai.balanceOf(account));
     const daixBalance = wad4human(await daix.balanceOf(account));
@@ -109,7 +109,7 @@ function AppDashboard() {
       Init();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, active, fetchBalances]);
+  }, [account, chainId, active, fetchBalances]);
 
   async function connect() {
     try {
@@ -309,7 +309,7 @@ function AppDashboard() {
                     <Currency title={account}>
                       {formatAddress(account)}
                     </Currency>
-                    <Chip>Goerli Test Network</Chip>
+                    <Chip>{CHAIN_ID[chainId] || ""} Network</Chip>
                   </>
                 )}
                 <div>

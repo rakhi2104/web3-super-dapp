@@ -7,9 +7,19 @@ export const LAYOUTS = {
 };
 
 export const NETWORKS = {
-  GOERLI: "goerli",
-  RINKEBY: "rinkeby",
-  ROPSTEN: "ropsten",
+  GOERLI: "Goerli Test",
+  RINKEBY: "Rinkeby Test",
+  ROPSTEN: "Ropsten Test",
+  KOVAN: "Kovan Test",
+  MAINNET: "Ethereum Mainnet",
+};
+
+export const CHAIN_ID = {
+  1: NETWORKS.MAINNET,
+  3: NETWORKS.ROPSTEN,
+  4: NETWORKS.RINKEBY,
+  5: NETWORKS.GOERLI,
+  42: NETWORKS.KOVAN,
 };
 
 export const TOKEN_ADDRESSES = {
