@@ -5,9 +5,9 @@ import {
   Divider,
   H1,
   Row,
-} from "./common/components";
-import { formatBalance } from "./common/utils";
-import Loading from "./Loading";
+} from "../common/components";
+import Loading from "../common/Loading";
+import { formatBalance } from "../common/utils";
 
 const BalanceCard = ({ title, token, value, isLoading }) => {
   return (

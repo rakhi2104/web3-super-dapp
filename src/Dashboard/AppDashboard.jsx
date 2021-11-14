@@ -2,10 +2,10 @@ import { wad4human } from "@decentral.ee/web3-helpers";
 import SuperfluidSDK from "@superfluid-finance/js-sdk";
 import { useWeb3React } from "@web3-react/core";
 import React, { useCallback, useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import Web3 from "web3";
-import ApproveAndDepositComp from "./ApproveAndDeposit";
-import BalanceCard from "./BalanceCard";
+import ApproveAndDepositComp from "../ApproveAndDeposit/ApproveAndDeposit";
+import BalanceCard from "../BalanceCard/BalanceCard";
 import {
   AccountImg,
   Button,
@@ -18,12 +18,15 @@ import {
   H1,
   NoteMessage,
   Row,
-} from "./common/components";
-import { injected } from "./common/connector";
-import { INITIAL_BALANCE_STATE } from "./common/constants";
-import { formatAddress } from "./common/utils";
-import Logo from "./MetaMask_Fox.png";
-import StreamComp from "./Stream";
+} from "../common/components";
+import { injected } from "../common/connector";
+import {
+  INITIAL_BALANCE_STATE,
+  REPEAT_FETCH_BALANCE_INTERVAL,
+} from "../common/constants";
+import { formatAddress } from "../common/utils";
+import Logo from "../MetaMask_Fox.png";
+import StreamComp from "../Stream/Stream";
 
 let sf, dai, daix;
 
@@ -31,12 +34,21 @@ const { REACT_APP_GAS_API_TOKEN } = process.env;
 
 function AppDashboard() {
   const [balance, setBalance] = useState(INITIAL_BALANCE_STATE);
+  const [depositAmount, setDepositAmount] = useState(0);
   const [estimatedGasPrice, setEstimatedGasPrice] = useState(null);
   const [fetchingBalance, setFetchingBalance] = useState(true);
+  const [fetchingUserDetails, setFetchingUserDetails] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [repeatFetchId, setRepeatFetchId] = useState(null);
+  const [streamInProgress, setStreamInProgress] = useState(false);
+  const [streamRate, setStreamRate] = useState(0);
+  const [streamRecipient, setStreamReceipientAddress] = useState("");
+
   const data = useWeb3React();
   const { active, account, activate, deactivate, library } = data;
 
   const fetchBalances = useCallback(async () => {
+    console.log("Fetching balance");
     setFetchingBalance(true);
     const daiBalance = wad4human(await dai.balanceOf(account));
     const daixBalance = wad4human(await daix.balanceOf(account));
@@ -45,17 +57,13 @@ function AppDashboard() {
     setFetchingBalance(false);
   }, [account]);
 
-  const [depositAmount, setDepositAmount] = useState(0);
-
-  const [streamRecipient, setStreamReceipientAddress] = useState("");
-  const [streamRate, setStreamRate] = useState(0);
-
-  const [streamInProgress, setStreamInProgress] = useState(false);
-  const [fetchingUserDetailsInProgress, setFetchingUserDetailsInProgress] =
-    useState(true);
+  const repeatFetchBalance = useCallback(() => {
+    const id = setInterval(fetchBalances, REPEAT_FETCH_BALANCE_INTERVAL);
+    setRepeatFetchId(id);
+  }, [fetchBalances]);
 
   const getExistingStreamDetails = useCallback(async () => {
-    setFetchingUserDetailsInProgress(true);
+    setFetchingUserDetails(true);
     try {
       const userDetails = await sf
         .user({ address: account, token: daix.address })
@@ -67,35 +75,41 @@ function AppDashboard() {
           setStreamInProgress(true);
           setStreamRate(flowRate);
           setStreamReceipientAddress(receiver);
+          repeatFetchBalance();
+        } else {
+          setStreamInProgress(false);
+          clearInterval(repeatFetchId);
         }
       }
     } catch (e) {
       toast.error(e);
     }
-    setFetchingUserDetailsInProgress(false);
-  }, [account]);
-
-  const Init = useCallback(async () => {
-    if (active) {
-      setFetchingBalance(true);
-      sf = new SuperfluidSDK.Framework({
-        web3: new Web3(Web3.givenProvider),
-        tokens: ["fDAI"],
-      });
-      await sf.initialize();
-      dai = await sf.contracts.TestToken.at(sf.tokens.fDAI.address);
-      daix = sf.tokens.fDAIx;
-
-      await getExistingStreamDetails();
-      fetchBalances();
-    }
-  }, [active, fetchBalances, getExistingStreamDetails]);
+    setFetchingUserDetails(false);
+  }, [account, repeatFetchBalance, repeatFetchId]);
 
   useEffect(() => {
-    if (account !== "") {
+    if (account !== "" && active) {
+      const Init = async () => {
+        if (active) {
+          setFetchingBalance(true);
+          sf = new SuperfluidSDK.Framework({
+            web3: new Web3(Web3.givenProvider),
+            tokens: ["fDAI"],
+          });
+          await sf.initialize();
+          dai = await sf.contracts.TestToken.at(sf.tokens.fDAI.address);
+          daix = sf.tokens.fDAIx;
+
+          fetchBalances();
+          await getExistingStreamDetails();
+        } else {
+          reset();
+        }
+      };
       Init();
     }
-  }, [account, Init]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, active, fetchBalances]);
 
   async function connect() {
     try {
@@ -104,7 +118,6 @@ function AppDashboard() {
           toast.error(e.message);
         }
       });
-      toast.success("Welcome!!");
     } catch (err) {
       console.log(err);
     }
@@ -113,6 +126,9 @@ function AppDashboard() {
   function reset() {
     setBalance(INITIAL_BALANCE_STATE);
     setDepositAmount(0);
+    setRepeatFetchId(null);
+    setLoading(false);
+    setStreamInProgress(false);
     setStreamRate(0);
     setStreamReceipientAddress("");
   }
@@ -126,8 +142,6 @@ function AppDashboard() {
       console.log(err);
     }
   }
-
-  const [loading, setLoading] = useState(false);
 
   async function estimateGAS() {
     if (REACT_APP_GAS_API_TOKEN) {
@@ -236,6 +250,7 @@ function AppDashboard() {
         flowRate: "" + streamRate,
       });
       if (a?.tx) {
+        repeatFetchBalance();
         toast.success(
           `Successfully started streaming ${streamRate} DAIx/month to ${formatAddress(
             streamRecipient
@@ -270,6 +285,9 @@ function AppDashboard() {
       setStreamInProgress(false);
       setStreamReceipientAddress("");
       setStreamRate(0);
+      fetchBalances();
+      clearInterval(repeatFetchId);
+      setRepeatFetchId(null);
     } catch (e) {
       toast.error(e?.message || e);
     }
@@ -332,24 +350,24 @@ function AppDashboard() {
       {active && (
         <Row>
           <ApproveAndDepositComp
-            depositDAI={depositDAI}
             approveDAI={approveDAI}
-            setDepositAmount={setDepositAmount}
-            depositAmount={depositAmount}
-            isLoading={loading}
             balance={balance}
+            depositAmount={depositAmount}
+            depositDAI={depositDAI}
+            isLoading={loading}
+            setDepositAmount={setDepositAmount}
           />
           <StreamComp
+            account={account}
+            closeDAIStream={closeDAIStream}
+            fetchingUserDetailsInProgress={fetchingUserDetails}
+            isAddress={library?.utils?.isAddress}
             setStreamRate={setStreamRate}
             setStreamReceipientAddress={setStreamReceipientAddress}
-            triggerDAIFlow={triggerDAIFlow}
+            streamInProgress={streamInProgress}
             streamRate={streamRate}
             streamRecipient={streamRecipient}
-            streamInProgress={streamInProgress}
-            fetchingUserDetailsInProgress={fetchingUserDetailsInProgress}
-            isAddress={library?.utils?.isAddress}
-            closeDAIStream={closeDAIStream}
-            account={account}
+            triggerDAIFlow={triggerDAIFlow}
           />
         </Row>
       )}
@@ -359,7 +377,6 @@ function AppDashboard() {
           {estimatedGasPrice.time} seconds for approval
         </NoteMessage>
       )}
-      <Toaster position="bottom-center" gutter={8} />
     </>
   );
 }

@@ -11,8 +11,8 @@ import {
   InputWrapper,
   Label,
   Row,
-} from "./common/components";
-import Loading from "./Loading";
+} from "../common/components";
+import Loading from "../common/Loading";
 
 const StreamComp = ({
   setStreamReceipientAddress,

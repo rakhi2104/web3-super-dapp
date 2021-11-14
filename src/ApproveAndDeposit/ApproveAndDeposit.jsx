@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import {
   Button,
   CardContent,
@@ -11,8 +12,8 @@ import {
   InputWrapper,
   Label,
   Row,
-} from "./common/components";
-import Loading from "./Loading";
+} from "../common/components";
+import Loading from "../common/Loading";
 
 const ApproveAndDepositComp = ({
   setDepositAmount,
@@ -29,12 +30,9 @@ const ApproveAndDepositComp = ({
   })();
 
   const validAmount = () => {
-    console.log({
-      d: parseFloat(depositAmount),
-      b: parseFloat(balance?.daixBalance),
-    });
-    if (parseFloat(depositAmount) > parseFloat(balance?.daixBalance)) {
+    if (parseFloat(depositAmount) > parseFloat(balance?.daiBalance)) {
       setErrorMessage("Insufficient funds");
+      toast.error("Insufficient funds");
       return false;
     } else {
       setErrorMessage(null);

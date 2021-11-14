@@ -8,7 +8,8 @@ const AppWrapper = styled.div`
   max-width: 75%;
   margin: 0 auto;
   ${LAYOUTS.LARGE} {
-    padding: 18px;
+    padding: 8px;
+    padding-bottom: 96px;
     min-height: calc(100vh - 36px);
     max-width: 100%;
     margin: auto;
@@ -185,22 +186,22 @@ const NoteMessage = styled.p`
 `;
 
 export {
-  NoteMessage,
   AccountImg,
-  Input,
-  Label,
   AppWrapper,
   Button,
   CardContent,
   CardWrapper,
+  Chip,
   Col,
   Currency,
   Divider,
+  ErrorMessage,
   H1,
   H2,
-  Chip,
-  Row,
-  Loader,
-  ErrorMessage,
+  Input,
   InputWrapper,
+  Label,
+  Loader,
+  NoteMessage,
+  Row,
 };

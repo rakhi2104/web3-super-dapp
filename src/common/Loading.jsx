@@ -1,4 +1,4 @@
-import { Loader } from "./common/components";
+import { Loader } from "./components";
 
 const Loading = ({ isLoading }) => {
   if (!isLoading) return null;
