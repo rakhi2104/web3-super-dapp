@@ -14,18 +14,27 @@ import {
 } from "../common/components";
 import { injected } from "../common/connector";
 import { CHAIN_ID } from "../common/constants";
+import SuperTokenABI from "../common/SuperToken.json";
 import { formatAddress } from "../common/utils";
 import WelcomeScreen from "../WelcomeScreen/WelcomeScreen";
 
+let token;
+
+// Addresses on Rinkeby. Refer: https://docs.superfluid.finance/superfluid/protocol-developers/networks#test-networks
+const fDAI = "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7";
+const fDAIx = "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90";
+
 function AppDashboard() {
   const data = useWeb3React();
-  const { active, account, activate, deactivate, chainId } = data;
+  const { active, account, activate, deactivate, chainId, library } = data;
 
   useEffect(() => {
     if (account !== "" && active) {
       const Init = async () => {
         if (active) {
           // do something
+
+          token = new library.eth.Contract(SuperTokenABI);
         } else {
           reset();
         }
@@ -64,6 +73,22 @@ function AppDashboard() {
   // Do custom call
   async function callFn() {
     try {
+      // console.log({ token });
+      const encodedData = token.methods
+        .approve(
+          fDAIx, // spender
+          "10" // amount
+        )
+        .encodeABI();
+
+      const callData = {
+        operation: 0,
+        to: fDAI,
+        value: 0,
+        data: encodedData,
+      };
+
+      console.log({ callData });
     } catch (e) {
       console.log(e);
     }
