@@ -31,11 +31,6 @@ export const useOnboard = () => {
               setAddress(address);
             }
           },
-          // balance: (balance) => {
-          //   if (isWalletSelected) {
-          //     setBalance(balance);
-          //   }
-          // },
         },
       })
     );
@@ -64,7 +59,6 @@ export const useOnboard = () => {
       onboard.walletReset();
 
       setWalletSelected(false);
-      // setBalance(null);
       setAddress(null);
 
       window.localStorage.removeItem("activeWallet");
