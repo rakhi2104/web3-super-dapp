@@ -1,5 +1,5 @@
 import { useWeb3React } from "@web3-react/core";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Button,
@@ -27,6 +27,8 @@ const fDAIx = "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90";
 function AppDashboard() {
   const data = useWeb3React();
   const { active, account, activate, deactivate, chainId, library } = data;
+  const [approved, setApproved] = useState(false);
+  const [approvedVal, setApprovedVal] = useState(0);
 
   useEffect(() => {
     if (account !== "" && active) {
@@ -70,6 +72,14 @@ function AppDashboard() {
     }
   }
 
+  useEffect(() => {
+    if (approved) {
+      // get Approved val
+      // setApprovedVal
+      console.log("getting approval val");
+    }
+  }, [approved]);
+
   // Do custom call
   async function callFn() {
     try {
@@ -77,18 +87,22 @@ function AppDashboard() {
       const encodedData = token.methods
         .approve(
           fDAIx, // spender
-          "10" // amount
+          "1000000000000000000" // amount
         )
         .encodeABI();
 
-      const callData = {
-        operation: 0,
+      const txnObj = {
+        from: account,
         to: fDAI,
         value: 0,
         data: encodedData,
       };
 
-      console.log({ callData });
+      const r = await library.eth.sendTransaction(txnObj);
+      if (r) {
+        setApproved(true);
+      }
+      console.log({ r });
     } catch (e) {
       console.log(e);
     }
