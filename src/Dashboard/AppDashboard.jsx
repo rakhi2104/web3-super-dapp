@@ -14,7 +14,7 @@ import {
 } from "../common/components";
 import { injected } from "../common/connector";
 import { CHAIN_ID } from "../common/constants";
-import SuperTokenABI from "../common/SuperToken.json";
+import ERC20ABI from "../common/ERC20ABI.json";
 import { formatAddress } from "../common/utils";
 import WelcomeScreen from "../WelcomeScreen/WelcomeScreen";
 
@@ -36,7 +36,8 @@ function AppDashboard() {
         if (active) {
           // do something
 
-          token = new library.eth.Contract(SuperTokenABI);
+          token = new library.eth.Contract(ERC20ABI, fDAI);
+          // token = new library.eth.Contract(SuperTokenABI);
         } else {
           reset();
         }
@@ -85,8 +86,8 @@ function AppDashboard() {
     try {
       // console.log({ token });
       const encodedData = token.methods
-        .approve(
-          fDAIx, // spender
+        .transfer(
+          "0xa78a6CFDe1c40f9fBdaa1a3DD6ac9AeD0bBe3A84", // receiver
           "1000000000000000000" // amount
         )
         .encodeABI();
